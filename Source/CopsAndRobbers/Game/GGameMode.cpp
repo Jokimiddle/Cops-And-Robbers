@@ -1,5 +1,94 @@
 #include "Game/GGameMode.h"
+#include "Game/GGameState.h"
+#include "Player/PPlayerController.h"
+#include "UI/ChattingWidget.h"
 
 AGGameMode::AGGameMode()
 {
+	GameTimerRate = 1.0f;
+}
+
+void AGGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	OnStartGameTimer();
+}
+
+
+void AGGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+
+	if (IsValid(NewPlayer) == false) return;
+
+	APPlayerController* CastPlayerController = Cast<APPlayerController>(NewPlayer);
+	if (CastPlayerController == nullptr) return;
+
+	// 로그인 성공
+	ValidPlayerList.Add({ CastPlayerController, false, FText::GetEmpty() });
+}
+
+void AGGameMode::OnStartGameTimer()
+{
+	AGGameState* CastGameState = GetGameState<AGGameState>();
+	if (CastGameState == nullptr) return;
+	
+	CastGameState->SetCurrentGameTimer(CastGameState->GetMaxGameTimer() + GameTimerRate);
+	GetWorldTimerManager().SetTimer(GameTimerHandle, this, &ThisClass::OnGameTimerTick, GameTimerRate, true);
+}
+
+void AGGameMode::OnGameTimerTick()
+{
+	AGGameState* CastGameState = GetGameState<AGGameState>();
+	if (CastGameState == nullptr) return;
+
+	float CurrentGameTimer = CastGameState->GetCurrentGameTimer();
+	const float MaxGameTimer = CastGameState->GetMaxGameTimer();
+	CurrentGameTimer -= GameTimerRate;
+
+	if (CurrentGameTimer <= 0.0f || FMath::IsNearlyZero(CurrentGameTimer) == true)
+	{
+		GetWorldTimerManager().ClearTimer(GameTimerHandle);
+	}
+	CastGameState->SetCurrentGameTimer(CurrentGameTimer);
+
+	
+	if (FMath::CeilToInt32(CurrentGameTimer) % 5 == 0)
+	{
+		FString LogMessage = FString::Printf(
+			TEXT("[GameMode] GameTimer: %d / %d"), FMath::CeilToInt32(CurrentGameTimer), FMath::CeilToInt32(MaxGameTimer)
+		);
+		UE_LOG(LogTemp, Display, TEXT("%s"), *LogMessage);
+	}
+}
+
+void AGGameMode::ClientRPCChattingPrint_Implementation(APlayerController* InPlayerController, const FText& Text)
+{
+	if (IsValid(InPlayerController) == false) return;
+
+	APPlayerController* CastPlayerController = Cast<APPlayerController>(InPlayerController);
+	if (CastPlayerController == nullptr) return;
+
+	bool Found = false;
+	FText SpeakerName = FText::FromString("Unknown");
+	for (FPlayerInfo PlayerInfo : ValidPlayerList)
+	{
+		if (PlayerInfo.PlayerController == CastPlayerController)
+		{
+			SpeakerName = PlayerInfo.PlayerName;
+			Found = true;
+			break;
+		}
+	}
+
+	for (FPlayerInfo PlayerInfo : ValidPlayerList)
+	{
+		if (PlayerInfo.PlayerController == CastPlayerController) continue;
+		UChattingWidget* ChattingWidget = PlayerInfo.PlayerController->GetChattingWidget();
+		if (IsValid(ChattingWidget) == false) continue;
+		
+		EChatType ChatType = EChatType::DefaultChat;
+		ChattingWidget->ReceiveChatMessage(ChatType, SpeakerName, Text);
+	}
 }

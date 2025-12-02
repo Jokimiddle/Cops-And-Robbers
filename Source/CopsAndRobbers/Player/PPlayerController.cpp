@@ -5,6 +5,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "UI/StatusWidget.h"
+#include "UI/ChattingWidget.h"
+#include "Blueprint/UserWidget.h"
 
 // GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("My Debug Message!"));
 APPlayerController::APPlayerController()
@@ -16,6 +19,13 @@ APPlayerController::APPlayerController()
 	MoveAction = nullptr;
 	JumpAction = nullptr;
 	SprintAction = nullptr;
+	ChatAction = nullptr;
+
+	StatusWidgetClass = nullptr;
+	StatusWidget = nullptr;
+
+	ChattingWidgetClass = nullptr;
+	ChattingWidget = nullptr;
 }
 
 void APPlayerController::BeginPlay()
@@ -28,6 +38,27 @@ void APPlayerController::BeginPlay()
 		if (EILPS == nullptr) return;
 
 		EILPS->AddMappingContext(InputMappingContext, 0);
+
+		if (IsValid(StatusWidgetClass) == true)
+		{
+			StatusWidget = CreateWidget<UStatusWidget>(this, StatusWidgetClass);
+			if (IsValid(StatusWidget))
+			{
+				StatusWidget->AddToViewport();
+				StatusWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+			}
+		}
+
+		if (IsValid(ChattingWidgetClass) == true)
+		{
+			ChattingWidget = CreateWidget<UChattingWidget>(this, ChattingWidgetClass);
+			if (IsValid(ChattingWidget))
+			{
+				ChattingWidget->AddToViewport();
+				ChattingWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+				//ChattingWidget->SetVisibility(ESlateVisibility::Visible);
+			}
+		}
 	}
 
 	if (ACharacter* CastCharacter = GetPawn<ACharacter>())
@@ -94,6 +125,16 @@ void APPlayerController::SetupInputComponent()
 			&ThisClass::HandleSprintInputEnd
 		);
 	}
+
+	if (IsValid(ChatAction) == true)
+	{
+		EnhancedInputComponent->BindAction(
+			ChatAction,
+			ETriggerEvent::Triggered,
+			this,
+			&ThisClass::HandleChatInput
+		);
+	}
 }
 
 void APPlayerController::HandleLookInput(const FInputActionValue& InValue)
@@ -137,12 +178,16 @@ void APPlayerController::HandleSprintInputStart(const FInputActionValue& InValue
 {
 	if (IsValid(PlayerCharacter) == false) return;
 	PlayerCharacter->GetCharacterMovement()->MaxWalkSpeed = PlayerCharacter->GetStandingRunSpeed();
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("My Debug Message!"));
-
 }
 
 void APPlayerController::HandleSprintInputEnd(const FInputActionValue& InValue)
 {
 	if (IsValid(PlayerCharacter) == false) return;
 	PlayerCharacter->GetCharacterMovement()->MaxWalkSpeed = PlayerCharacter->GetStandingWalkSpeed();
+}
+
+void APPlayerController::HandleChatInput(const FInputActionValue& InValue)
+{
+	if (IsValid(ChattingWidget) == false) return;
+	ChattingWidget->ChattingInputReady();
 }

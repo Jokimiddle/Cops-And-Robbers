@@ -11,7 +11,9 @@ public class CopsAndRobbers : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { 
 			// default
 			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
-
+			
+			// UI
+			"UMG", "Slate", "SlateCore",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

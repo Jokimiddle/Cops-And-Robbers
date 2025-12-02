@@ -7,7 +7,8 @@ class APPlayerCharacter;
 class UInputAction;
 class UInputMappingContext;
 struct FInputActionValue;
-
+class UStatusWidget;
+class UChattingWidget;
 UCLASS()
 class COPSANDROBBERS_API APPlayerController : public APlayerController
 {
@@ -30,7 +31,18 @@ protected:
 	TObjectPtr<UInputAction> JumpAction;
 	UPROPERTY(EditDefaultsOnly, Category = "InputAction|Inputs")
 	TObjectPtr<UInputAction> SprintAction;
+	UPROPERTY(EditDefaultsOnly, Category = "InputAction|Inputs")
+	TObjectPtr<UInputAction> ChatAction;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<UStatusWidget> StatusWidgetClass;
+	UPROPERTY(VisibleInstanceOnly, Category = "Widgets")
+	TObjectPtr<UStatusWidget> StatusWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<UChattingWidget> ChattingWidgetClass;
+	UPROPERTY(VisibleInstanceOnly, Category = "Widgets")
+	TObjectPtr<UChattingWidget> ChattingWidget;
 
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
@@ -47,4 +59,10 @@ public:
 	void HandleSprintInputStart(const FInputActionValue& InValue);
 	UFUNCTION()
 	void HandleSprintInputEnd(const FInputActionValue& InValue);
+	UFUNCTION()
+	void HandleChatInput(const FInputActionValue& InValue);
+
+	UStatusWidget* GetStatusWidget() const { return StatusWidget; };
+	UChattingWidget* GetChattingWidget() const { return ChattingWidget; };
+
 };
