@@ -43,6 +43,5 @@ public:
 	UFUNCTION()
 	void OnGameTimerTick();
 
-	UFUNCTION(Client, Reliable)
-	void ClientRPCChattingPrint(APlayerController* InPlayerController, const FText& Text);
+	void ChattingPrintLogic(APlayerController* InPlayerController, const FText& Text);
 };

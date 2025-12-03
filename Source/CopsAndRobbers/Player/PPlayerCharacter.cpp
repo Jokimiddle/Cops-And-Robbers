@@ -4,21 +4,15 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Net/UnrealNetwork.h"
 
 APPlayerCharacter::APPlayerCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	bReplicates = true;
 	PrimaryActorTick.bCanEverTick = false;
 
-	SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComponent"));
-	SetRootComponent(SceneComponent);
-	
-	GetCapsuleComponent()->SetupAttachment(GetRootComponent());
-	GetMesh()->SetupAttachment(GetCapsuleComponent());
-	GetArrowComponent()->SetupAttachment(GetCapsuleComponent());
-
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
-	SpringArmComponent->SetupAttachment(GetCapsuleComponent());
+	SpringArmComponent->SetupAttachment(GetRootComponent());
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
@@ -46,6 +40,10 @@ APPlayerCharacter::APPlayerCharacter()
 	GetCharacterMovement()->MaxWalkSpeed = StandingWalkSpeed;
 	// ------------------------------------
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned; // AI 자동 빙의
+
+	//NetUpdateFrequency = 100.0f;
+	//GetCharacterMovement()->NetworkSmoothingMode = ENetworkSmoothingMode::Linear;
+
 }
 
 void APPlayerCharacter::BeginPlay()
@@ -53,6 +51,12 @@ void APPlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	GetCharacterMovement()->MaxWalkSpeed = StandingWalkSpeed;
+}
+
+void APPlayerCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
 }
 
 void APPlayerCharacter::Tick(float DeltaTime)

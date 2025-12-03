@@ -1,8 +1,8 @@
 #include "Game/GGameMode.h"
 #include "Game/GGameState.h"
 #include "Player/PPlayerController.h"
+#include "Player/PPlayerState.h"
 #include "UI/ChattingWidget.h"
-
 AGGameMode::AGGameMode()
 {
 	GameTimerRate = 1.0f;
@@ -63,7 +63,7 @@ void AGGameMode::OnGameTimerTick()
 	}
 }
 
-void AGGameMode::ClientRPCChattingPrint_Implementation(APlayerController* InPlayerController, const FText& Text)
+void AGGameMode::ChattingPrintLogic(APlayerController* InPlayerController, const FText& Text)
 {
 	if (IsValid(InPlayerController) == false) return;
 
@@ -85,10 +85,11 @@ void AGGameMode::ClientRPCChattingPrint_Implementation(APlayerController* InPlay
 	for (FPlayerInfo PlayerInfo : ValidPlayerList)
 	{
 		if (PlayerInfo.PlayerController == CastPlayerController) continue;
-		UChattingWidget* ChattingWidget = PlayerInfo.PlayerController->GetChattingWidget();
-		if (IsValid(ChattingWidget) == false) continue;
 		
+		APPlayerState* CastPlayerState = PlayerInfo.PlayerController->GetPlayerState<APPlayerState>();
+		if (IsValid(CastPlayerState) == false) continue;
+
 		EChatType ChatType = EChatType::DefaultChat;
-		ChattingWidget->ReceiveChatMessage(ChatType, SpeakerName, Text);
+		CastPlayerState->ClientRPCChattingPrint(ChatType, SpeakerName, Text);
 	}
 }

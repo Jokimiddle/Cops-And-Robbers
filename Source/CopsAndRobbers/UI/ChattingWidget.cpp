@@ -57,7 +57,7 @@ void UChattingWidget::ChattingInputReady()
 	FSlateApplication::Get().SetKeyboardFocus(ChattingInputBox->TakeWidget());
 }
 
-void UChattingWidget::ReceiveChatMessage(EChatType& InChatType, const FText& SpeakerName, const FText& Message)
+void UChattingWidget::ReceiveChatMessage(const EChatType& InChatType, const FText& SpeakerName, const FText& Message)
 {
 	FText PrintMessage;
 	switch (InChatType)

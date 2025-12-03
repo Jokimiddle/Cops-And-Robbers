@@ -15,8 +15,6 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<USceneComponent> SceneComponent;
-	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<USpringArmComponent> SpringArmComponent;
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UCameraComponent> CameraComponent;
@@ -26,12 +24,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float SprintSpeedScale;
 
+	float MaxMoveSpeed;
+
 	virtual void BeginPlay() override;
 
 public:
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void Tick(float DeltaTime) override;
+	
 	const float GetStandingWalkSpeed() const { return StandingWalkSpeed; };
 	const float GetStandingRunSpeed() const { return StandingWalkSpeed * SprintSpeedScale; };
-	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 

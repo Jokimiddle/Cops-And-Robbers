@@ -1,17 +1,20 @@
 #include "Player/PPlayerController.h"
 #include "Player/PPlayerCharacter.h"
-#include "EnhancedInputComponent.h"
-#include "InputMappingContext.h"
-#include "EnhancedInputSubsystems.h"
-#include "GameFramework/Character.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "Player/PPlayerState.h"
 #include "UI/StatusWidget.h"
 #include "UI/ChattingWidget.h"
 #include "Blueprint/UserWidget.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "InputMappingContext.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 
 // GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("My Debug Message!"));
 APPlayerController::APPlayerController()
 {
+	bReplicates = true;
+
 	PlayerCharacter = nullptr;
 
 	InputMappingContext = nullptr;
@@ -48,7 +51,6 @@ void APPlayerController::BeginPlay()
 				StatusWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 			}
 		}
-
 		if (IsValid(ChattingWidgetClass) == true)
 		{
 			ChattingWidget = CreateWidget<UChattingWidget>(this, ChattingWidgetClass);
@@ -56,11 +58,10 @@ void APPlayerController::BeginPlay()
 			{
 				ChattingWidget->AddToViewport();
 				ChattingWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-				//ChattingWidget->SetVisibility(ESlateVisibility::Visible);
 			}
 		}
 	}
-
+	
 	if (ACharacter* CastCharacter = GetPawn<ACharacter>())
 	{
 		PlayerCharacter = Cast<APPlayerCharacter>(CastCharacter);
@@ -70,6 +71,8 @@ void APPlayerController::BeginPlay()
 void APPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
+
+	APPlayerState* CastPlayerState = GetPlayerState<APPlayerState>();
 
 	if (IsValid(InputMappingContext) == false) return;
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
@@ -125,7 +128,6 @@ void APPlayerController::SetupInputComponent()
 			&ThisClass::HandleSprintInputEnd
 		);
 	}
-
 	if (IsValid(ChatAction) == true)
 	{
 		EnhancedInputComponent->BindAction(
@@ -147,16 +149,17 @@ void APPlayerController::HandleLookInput(const FInputActionValue& InValue)
 void APPlayerController::HandleMoveInput(const FInputActionValue& InValue)
 {
 	FVector2D Move2DVector = InValue.Get<FVector2D>();
-	const FRotator MoveRotator = FRotator(0.0f, GetControlRotation().Yaw, 0.0f);
+	if (Move2DVector.IsNearlyZero() == true) return;
 
+	const FRotator MoveRotator = FRotator(0.0f, GetControlRotation().Yaw, 0.0f);
 	const FVector ForwardDirection = FRotationMatrix(MoveRotator).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(MoveRotator).GetUnitAxis(EAxis::Y);
-
-	if (FMath::IsNearlyZero(Move2DVector.X) == false)
+	
+	if (true || FMath::IsNearlyZero(Move2DVector.X) == false)
 	{
 		GetPawn()->AddMovementInput(ForwardDirection, Move2DVector.X);
 	}
-	if (FMath::IsNearlyZero(Move2DVector.Y) == false)
+	if (true || FMath::IsNearlyZero(Move2DVector.Y) == false)
 	{
 		GetPawn()->AddMovementInput(RightDirection, Move2DVector.Y);
 	}
@@ -185,7 +188,6 @@ void APPlayerController::HandleSprintInputEnd(const FInputActionValue& InValue)
 	if (IsValid(PlayerCharacter) == false) return;
 	PlayerCharacter->GetCharacterMovement()->MaxWalkSpeed = PlayerCharacter->GetStandingWalkSpeed();
 }
-
 void APPlayerController::HandleChatInput(const FInputActionValue& InValue)
 {
 	if (IsValid(ChattingWidget) == false) return;

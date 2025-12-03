@@ -64,5 +64,4 @@ public:
 
 	UStatusWidget* GetStatusWidget() const { return StatusWidget; };
 	UChattingWidget* GetChattingWidget() const { return ChattingWidget; };
-
 };
