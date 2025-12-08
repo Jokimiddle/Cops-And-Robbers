@@ -38,7 +38,7 @@ void UChattingWidget::OnChattingCommitted(const FText& Text, ETextCommit::Type C
 	APPlayerState* CastPlayerState = GetOwningPlayerState<APPlayerState>();
 	if (CastPlayerState == nullptr) return;
 
-	FText MyName = FText::FromName(CastPlayerState->GetPlayerName());
+	FName MyName = CastPlayerState->GetPlayerName();
 	EChatType ChatType = EChatType::DefaultChat;
 	
 	ReceiveChatMessage(ChatType, MyName, Text);
@@ -57,7 +57,7 @@ void UChattingWidget::ChattingInputReady()
 	FSlateApplication::Get().SetKeyboardFocus(ChattingInputBox->TakeWidget());
 }
 
-void UChattingWidget::ReceiveChatMessage(const EChatType& InChatType, const FText& SpeakerName, const FText& Message)
+void UChattingWidget::ReceiveChatMessage(const EChatType& InChatType, const FName& SpeakerName, const FText& Message)
 {
 	FText PrintMessage;
 	switch (InChatType)

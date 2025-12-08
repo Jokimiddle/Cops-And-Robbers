@@ -39,7 +39,6 @@ APPlayerCharacter::APPlayerCharacter()
 	SprintSpeedScale = 2.0f;
 	GetCharacterMovement()->MaxWalkSpeed = StandingWalkSpeed;
 	// ------------------------------------
-	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned; // AI 자동 빙의
 
 	//NetUpdateFrequency = 100.0f;
 	//GetCharacterMovement()->NetworkSmoothingMode = ENetworkSmoothingMode::Linear;

@@ -3,7 +3,6 @@
 #include "GameFramework/PlayerController.h"
 #include "PPlayerController.generated.h"
 
-class APPlayerCharacter;
 class UInputAction;
 class UInputMappingContext;
 struct FInputActionValue;
@@ -18,9 +17,6 @@ public:
 	APPlayerController();
 
 protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Character|Player")
-	TObjectPtr<APPlayerCharacter> PlayerCharacter;
-
 	UPROPERTY(EditDefaultsOnly, Category = "InputMappingContext|Inputs")
 	TObjectPtr<UInputMappingContext> InputMappingContext;
 	UPROPERTY(EditDefaultsOnly, Category = "InputAction|Inputs")

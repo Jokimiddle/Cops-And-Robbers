@@ -24,8 +24,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	float SprintSpeedScale;
 
-	float MaxMoveSpeed;
-
 	virtual void BeginPlay() override;
 
 public:

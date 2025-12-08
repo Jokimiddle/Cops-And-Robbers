@@ -1,8 +1,10 @@
 #include "Game/GGameMode.h"
+#include "Game/LobbyGameMode.h"
 #include "Game/GGameState.h"
 #include "Player/PPlayerController.h"
 #include "Player/PPlayerState.h"
 #include "UI/ChattingWidget.h"
+
 AGGameMode::AGGameMode()
 {
 	GameTimerRate = 1.0f;
@@ -22,11 +24,8 @@ void AGGameMode::PostLogin(APlayerController* NewPlayer)
 
 	if (IsValid(NewPlayer) == false) return;
 
-	APPlayerController* CastPlayerController = Cast<APPlayerController>(NewPlayer);
-	if (CastPlayerController == nullptr) return;
-
 	// 로그인 성공
-	ValidPlayerList.Add({ CastPlayerController, false, FText::GetEmpty() });
+	ValidPlayerList.Add({ NewPlayer, false, FName()});
 }
 
 void AGGameMode::OnStartGameTimer()
@@ -67,14 +66,11 @@ void AGGameMode::ChattingPrintLogic(APlayerController* InPlayerController, const
 {
 	if (IsValid(InPlayerController) == false) return;
 
-	APPlayerController* CastPlayerController = Cast<APPlayerController>(InPlayerController);
-	if (CastPlayerController == nullptr) return;
-
 	bool Found = false;
-	FText SpeakerName = FText::FromString("Unknown");
-	for (FPlayerInfo PlayerInfo : ValidPlayerList)
+	FName SpeakerName = FName(TEXT("Unknown"));
+	for (FPlayerInfo& PlayerInfo : ValidPlayerList)
 	{
-		if (PlayerInfo.PlayerController == CastPlayerController)
+		if (PlayerInfo.PlayerController == InPlayerController)
 		{
 			SpeakerName = PlayerInfo.PlayerName;
 			Found = true;
@@ -82,9 +78,9 @@ void AGGameMode::ChattingPrintLogic(APlayerController* InPlayerController, const
 		}
 	}
 
-	for (FPlayerInfo PlayerInfo : ValidPlayerList)
+	for (FPlayerInfo& PlayerInfo : ValidPlayerList)
 	{
-		if (PlayerInfo.PlayerController == CastPlayerController) continue;
+		if (PlayerInfo.PlayerController == InPlayerController) continue;
 		
 		APPlayerState* CastPlayerState = PlayerInfo.PlayerController->GetPlayerState<APPlayerState>();
 		if (IsValid(CastPlayerState) == false) continue;

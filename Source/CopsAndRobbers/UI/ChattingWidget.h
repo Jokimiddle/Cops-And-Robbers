@@ -36,5 +36,5 @@ public:
 
 	void ChattingInputReady();
 
-	void ReceiveChatMessage(const EChatType& InChatType, const FText& SpeakerName, const FText& Message);
+	void ReceiveChatMessage(const EChatType& InChatType, const FName& SpeakerName, const FText& Message);
 };

@@ -12,15 +12,20 @@ class COPSANDROBBERS_API APPlayerState : public APlayerState
 public:
 	APPlayerState();
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite);
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite);
 	FName PlayerName;
 public:
 	virtual void BeginPlay() override;
-	const FName GetPlayerName() const { return PlayerName; };
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
+	const FName GetPlayerName() const { return PlayerName; };
+	void SetPlayerName(const FName& Newname) { PlayerName = Newname; };
 	UFUNCTION(Server, Reliable)
 	void ServerRPCChattingCommitted(APlayerController* InPlayerController, const FText& Text);
 	UFUNCTION(Client, Reliable)
-	void ClientRPCChattingPrint(const EChatType& InChatType, const FText& SpeakerName, const FText& Message);
+	void ClientRPCChattingPrint(const EChatType& InChatType, const FName& SpeakerName, const FText& Message);
+
+	UFUNCTION(Client, Reliable)
+	void ClientRPCCreatePlayerEntryWidget();
 
 };

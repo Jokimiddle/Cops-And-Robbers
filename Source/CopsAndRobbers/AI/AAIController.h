@@ -10,4 +10,11 @@ class COPSANDROBBERS_API AAAIController : public AAIController
 	
 public:
 	AAAIController();
+protected:
+	UPROPERTY(EditDefaultsOnly)
+	float MoveRadius;
+public:
+	FTimerHandle AIMoveTimerHandle;
+	virtual void BeginPlay() override;
+	void MoveToRandomLocation();
 };

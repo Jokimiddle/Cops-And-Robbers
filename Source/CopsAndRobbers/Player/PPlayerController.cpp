@@ -15,8 +15,6 @@ APPlayerController::APPlayerController()
 {
 	bReplicates = true;
 
-	PlayerCharacter = nullptr;
-
 	InputMappingContext = nullptr;
 	LookAction = nullptr;
 	MoveAction = nullptr;
@@ -60,11 +58,6 @@ void APPlayerController::BeginPlay()
 				ChattingWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 			}
 		}
-	}
-	
-	if (ACharacter* CastCharacter = GetPawn<ACharacter>())
-	{
-		PlayerCharacter = Cast<APPlayerCharacter>(CastCharacter);
 	}
 }
 
@@ -167,29 +160,54 @@ void APPlayerController::HandleMoveInput(const FInputActionValue& InValue)
 
 void APPlayerController::HandleJumpInputStart(const FInputActionValue& InValue)
 {
+	ACharacter* TempCharacter = GetCharacter();
+	if (IsValid(TempCharacter) == false) return;
+	
+	APPlayerCharacter* PlayerCharacter = Cast<APPlayerCharacter>(TempCharacter);
 	if (IsValid(PlayerCharacter) == false) return;
+
 	PlayerCharacter->Jump();
 }
 
 void APPlayerController::HandleJumpInputEnd(const FInputActionValue& InValue)
 {
+	ACharacter* TempCharacter = GetCharacter();
+	if (IsValid(TempCharacter) == false) return;
+
+	APPlayerCharacter* PlayerCharacter = Cast<APPlayerCharacter>(TempCharacter);
 	if (IsValid(PlayerCharacter) == false) return;
+
 	PlayerCharacter->StopJumping();
 }
 
 void APPlayerController::HandleSprintInputStart(const FInputActionValue& InValue)
 {
+	ACharacter* TempCharacter = GetCharacter();
+	if (IsValid(TempCharacter) == false) return;
+
+	APPlayerCharacter* PlayerCharacter = Cast<APPlayerCharacter>(TempCharacter);
 	if (IsValid(PlayerCharacter) == false) return;
+
 	PlayerCharacter->GetCharacterMovement()->MaxWalkSpeed = PlayerCharacter->GetStandingRunSpeed();
 }
 
 void APPlayerController::HandleSprintInputEnd(const FInputActionValue& InValue)
 {
+	ACharacter* TempCharacter = GetCharacter();
+	if (IsValid(TempCharacter) == false) return;
+
+	APPlayerCharacter* PlayerCharacter = Cast<APPlayerCharacter>(TempCharacter);
 	if (IsValid(PlayerCharacter) == false) return;
+
 	PlayerCharacter->GetCharacterMovement()->MaxWalkSpeed = PlayerCharacter->GetStandingWalkSpeed();
 }
 void APPlayerController::HandleChatInput(const FInputActionValue& InValue)
 {
-	if (IsValid(ChattingWidget) == false) return;
+	ACharacter* TempCharacter = GetCharacter();
+	if (IsValid(TempCharacter) == false) return;
+
+	APPlayerCharacter* PlayerCharacter = Cast<APPlayerCharacter>(TempCharacter);
+	if (IsValid(PlayerCharacter) == false) return;
+
 	ChattingWidget->ChattingInputReady();
 }
